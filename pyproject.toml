@@ -1,0 +1,65 @@
+[project]
+name = "rag-platform"
+version = "0.1.0"
+description = "Enterprise Intelligent Document Retrieval & QA Platform"
+requires-python = ">=3.12"
+dependencies = [
+    # --- Web Framework ---
+    "fastapi>=0.115.0",
+    "uvicorn[standard]>=0.32.0",
+    "sse-starlette>=2.1.0",
+
+    # --- Configuration ---
+    "pydantic>=2.10.0",
+    "pydantic-settings>=2.7.0",
+    "python-dotenv>=1.0.0",
+
+    # --- Vector Database ---
+    "pymilvus>=2.5.0",
+
+    # --- Cache / Parent Doc Store ---
+    "redis[hiredis]>=5.2.0",
+
+    # --- LLM API ---
+    "openai>=1.60.0",
+    "tiktoken>=0.8.0",
+
+    # --- Local Embedding (Qwen3-Embedding-0.6B) ---
+    "torch>=2.5.0",
+    "transformers>=4.47.0",
+    "sentence-transformers>=3.3.0",
+
+    # --- Document Processing ---
+    "pypdf>=5.1.0",
+    "python-docx>=1.1.0",
+    "markdown-it-py>=3.0.0",
+    "chardet>=5.2.0",
+
+    # --- Document Parsing (MinerU GPU) ---
+    "mineru[all]>=2.5.0",
+
+    # --- Async & Performance ---
+    "httpx>=0.28.0",
+    "anyio>=4.7.0",
+    "orjson>=3.10.0",
+    "structlog>=24.4.0",
+    "python-multipart>=0.0.18",
+    "aiofiles>=24.1.0",
+    "tenacity>=9.0.0",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=8.3.0",
+    "pytest-asyncio>=0.24.0",
+    "httpx>=0.28.0",
+    "ruff>=0.8.0",
+]
+
+[tool.ruff]
+line-length = 100
+target-version = "py312"
+
+[tool.pytest.ini_options]
+asyncio_mode = "auto"
+testpaths = ["tests"]

@@ -1,0 +1,40 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+dist/
+build/
+venv/
+.venv/
+
+# Environment & Secrets
+.env
+*.key
+*.pem
+
+# Data (test outputs, mineru dumps)
+data/
+docker_data/
+
+# Models & Cache
+.cache/
+models/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Session
+frontend/.session_state.json
+backend.log
+*.log
+
+# Test outputs
+search_result.json
+qa_test_result.json
