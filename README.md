@@ -2,9 +2,9 @@
 
 企业级智能文档检索与问答平台。上传 PDF/Word/PPT/Excel/Markdown 文档，基于内容进行智能问答。
 
-![image-20260728150847242](C:\Users\Hongsheng\AppData\Roaming\Typora\typora-user-images\image-20260728150847242.png)
+![image-20260728152203940](D:\rag_proj\docs\image-20260728152203940.png)
 
-![image-20260728151044616](C:\Users\Hongsheng\AppData\Roaming\Typora\typora-user-images\image-20260728151044616.png)
+![image-20260728152219561](D:\rag_proj\docs\image-20260728152219561.png)
 
 ## 技术栈
 
