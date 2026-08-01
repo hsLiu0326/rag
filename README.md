@@ -2,10 +2,6 @@
 
 企业级智能文档检索与问答平台。上传 PDF/Word/PPT/Excel/Markdown 文档，基于内容进行智能问答。
 
-![前端操作界面](./docs/image-20260728152203940.png)
-
-![image-20260728152219561](./docs/image-20260728152219561.png)
-
 ## 技术栈
 
 | 组件 | 技术 |
@@ -21,11 +17,11 @@
 
 ## 核心特性
 
-- **混合检索** — 稠密向量 + BM25 关键词，RRF 融合，专有名词召回率提升 20%
+- **混合检索** — 稠密向量 + BM25 关键词，RRF 融合，专有名词/长尾术语召回更优
 - **父子文档架构** — 小块检索 + 大块上下文，减少切片幻觉
 - **多格式支持** — PDF / DOCX / PPTX / XLSX / MD / TXT
 - **智能 PDF 解析** — 电子版秒出，扫描件自动走 MinerU GPU
-- **流式问答** — SSE 逐字输出，首字 < 1 秒
+- **流式问答** — SSE 逐字输出，实测首字约 0.8~2.6 秒
 - **多轮对话** — 追问保留上下文
 - **清洗管线** — 6 条可插拔文本清洗规则
 
@@ -73,11 +69,10 @@ source venv/bin/activate
 ### 5. 安装依赖
 
 ```bash
-# 基础依赖（不含 MinerU，PDF 电子版足够）
+# 安装全部依赖（含 MinerU，扫描件 PDF 需要）
 pip install -e .
 
-# 需要扫描件 PDF 支持时再装 MinerU
-pip install "mineru[all]"
+# 不需要扫描件 OCR 时，可先从 pyproject.toml 中移除 mineru[all] 再安装
 ```
 
 ### 6. 启动 Docker 服务
@@ -140,16 +135,49 @@ rag/
 │   │   ├── milvus_store.py     # Milvus 向量库
 │   │   ├── redis_store.py      # Redis 父文档存储
 │   │   └── filestore.py        # 文件持久化
+│   ├── utils/
+│   │   ├── logging_config.py   # 结构化日志配置
+│   │   └── timer.py            # 性能计时装饰器
 │   └── models/
 │       ├── schemas.py          # API 数据模型
 │       └── document.py         # 内部数据结构
 ├── frontend/
 │   ├── app.py                  # Streamlit 前端
 │   └── api_client.py           # 后端 API 客户端
+├── tests/
+│   ├── test_preprocessor/      # 清洗 / 切片 / 加载器
+│   ├── test_retrieval/         # 混合检索 / 父文档回捞 / 重排序
+│   ├── test_storage/           # Milvus 过滤表达式 / Redis 存取
+│   ├── test_llm/               # RAG Prompt 组装
+│   └── test_api/               # API 路由（服务以 stub 替代）
 ├── docker-compose.yml          # Milvus + Redis 部署
 ├── .env.example                # 配置模板
 └── run_backend.bat / run_frontend.bat  # Windows 启动脚本
 ```
+
+## 测试
+
+```bash
+pip install -e ".[dev]"
+python -m pytest
+```
+
+测试无需 Docker / Milvus / Redis，可在任意机器上直接运行。覆盖范围：
+
+- 文本清洗管线（6 条规则、可插拔增删、异常隔离）
+- 分层父子切片（标题树构建、title_path 面包屑、无标题回退、块大小预算）
+- 多格式加载器（DOCX / PPTX / XLSX / MD / TXT / 编码探测、扩展名分发）
+- RAG Prompt 组装（来源元数据、历史截断至最近 10 条）
+- 混合检索（命中映射、过滤条件转发）与父文档回捞（去重、最高分、排序）
+- Milvus 过滤表达式与 Redis 父文档存取（内存 fake 客户端）
+- API 路由（健康检查 / 上传 / 状态 / 删除 / 依赖不可用时的问答降级）
+
+## 已知限制与路线图
+
+- **重排序**：`reranker.py` 目前为直通实现，`enable_rerank` 是预留开关，计划接入 BGE-Reranker 等交叉编码器。
+- **上传处理**：上传接口当前同步等待入库完成，大文件或扫描件 PDF 会阻塞请求，计划改为后台任务 + 进度轮询。
+- **来源元数据**：PDF 以整本合成单文档处理，页码暂为 0，计划按页切分并保留页码/章节信息。
+- **检索质量评估**：已有端到端链路测试，后续补充带标注问题的召回率（Recall@k）评估脚本。
 
 ## 常见问题
 
