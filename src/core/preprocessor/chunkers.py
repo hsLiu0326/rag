@@ -85,18 +85,18 @@ class HierarchicalChunker:
 
     @staticmethod
     def _find_parent(sections: list[Section], level: int) -> Section | None:
-        """Walk the section stack to find the parent for a given heading level."""
-        if not sections:
-            return None
-        # Walk backwards through the flat list; a parent has a strictly lower level
-        for s in reversed(sections):
+        """Find the nearest ancestor whose heading level is strictly lower.
+
+        Walks the section tree built so far and descends into children so that
+        an H3 is attached under its own H2 rather than jumping straight to the
+        H1 (or top-level) section.
+        """
+        best: Section | None = None
+        for s in sections:
             if s.level < level:
-                return s
-            # Check children recursively
-            result = HierarchicalChunker._find_parent(s.children, level)
-            if result:
-                return result
-        return None
+                # A candidate ancestor; prefer a deeper one inside its subtree
+                best = HierarchicalChunker._find_parent(s.children, level) or s
+        return best
 
     # ── Splitting logic ─────────────────────────────────────────────
 
